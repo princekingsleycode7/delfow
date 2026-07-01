@@ -1,0 +1,6 @@
+{
+  "name": "Delflow Shipping & Logistics",
+  "description": "Premium shipping and logistics platform featuring real-time parcel tracking, admin shipment management, and live support chat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
