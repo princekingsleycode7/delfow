@@ -2304,7 +2304,7 @@ export default function App() {
                         <div>
                           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email Support</p>
                           <p className="text-sm text-slate-700 font-medium mt-0.5">
-                            support@delflow.com
+                            delflow_logistics@protonmail.com
                           </p>
                         </div>
                       </div>
@@ -2358,7 +2358,7 @@ export default function App() {
                   <div>
                     <h3 className="text-xl font-bold text-slate-900">Send Us an Inquiry</h3>
                     <p className="text-xs text-slate-500 mt-1">
-                      Our dispatch team monitors incoming forms 24/7. Fill out the details below to initialize a formal request.
+                      Our dispatch team monitors incoming inquiries 24/7 at <span className="font-semibold text-slate-700">delflow_logistics@protonmail.com</span>. Fill out the details below to submit a formal request.
                     </p>
                   </div>
 
@@ -2368,9 +2368,9 @@ export default function App() {
                         <CheckCircle2 className="w-8 h-8" />
                       </div>
                       <div className="space-y-2">
-                        <h4 className="text-lg font-bold text-emerald-900">Inquiry Received Successfully!</h4>
+                        <h4 className="text-lg font-bold text-emerald-900">Inquiry Sent Successfully!</h4>
                         <p className="text-xs text-emerald-700 max-w-md mx-auto leading-relaxed">
-                          Thank you for contacting Delflow, <strong>{contactName}</strong>. Our logistics coordinators are already reviewing your inquiry <strong>"{contactSubject}"</strong> and will reach out to you at <strong>{contactEmail}</strong> within 2 hours.
+                          Thank you for contacting Delflow, <strong>{contactName}</strong>. Your inquiry <strong>"{contactSubject}"</strong> has been directed to <strong>delflow_logistics@protonmail.com</strong>. Our logistics coordinators will reach out to you at <strong>{contactEmail}</strong> within 2 hours.
                         </p>
                       </div>
                       <button
@@ -3563,7 +3563,7 @@ export default function App() {
             <p className="leading-relaxed">
               Corporate Office: <br/>
               900 Wilshire Blvd, Los Angeles, CA<br/>
-              support@delflow.com
+              delflow_logistics@protonmail.com
             </p>
           </div>
 
