@@ -351,6 +351,13 @@ export default function App() {
 
   // Auth States
   const [token, setToken] = useState<string | null>(localStorage.getItem(SESSION_TOKEN_KEY));
+  const latestTokenRef = useRef<string | null>(token);
+
+  // Sync token ref with token state
+  useEffect(() => {
+    latestTokenRef.current = token;
+  }, [token]);
+
   const [user, setUser] = useState<any | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
@@ -520,6 +527,9 @@ export default function App() {
       const res = await fetch('/api/auth/me', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (token !== latestTokenRef.current) {
+        return; // Ignore stale request
+      }
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
@@ -528,7 +538,9 @@ export default function App() {
         logout();
       }
     } catch (e) {
-      console.error(e);
+      if (token === latestTokenRef.current) {
+        console.error(e);
+      }
     }
   };
 
@@ -538,12 +550,15 @@ export default function App() {
       const res = await fetch('/api/parcels', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (token !== latestTokenRef.current) return;
       if (res.ok) {
         const data = await res.json();
         setParcels(data);
       }
     } catch (e) {
-      console.error(e);
+      if (token === latestTokenRef.current) {
+        console.error(e);
+      }
     }
   };
 
@@ -553,12 +568,15 @@ export default function App() {
       const res = await fetch('/api/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (token !== latestTokenRef.current) return;
       if (res.ok) {
         const data = await res.json();
         setAdminUsers(data);
       }
     } catch (e) {
-      console.error(e);
+      if (token === latestTokenRef.current) {
+        console.error(e);
+      }
     }
   };
 
@@ -568,6 +586,7 @@ export default function App() {
       const res = await fetch('/api/chat/active-sessions', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (token !== latestTokenRef.current) return;
       if (res.ok) {
         const data = await res.json();
         setActiveChats(data);
@@ -581,7 +600,9 @@ export default function App() {
         }
       }
     } catch (e) {
-      console.error(e);
+      if (token === latestTokenRef.current) {
+        console.error(e);
+      }
     }
   };
 
