@@ -2798,7 +2798,11 @@ export default function App() {
                 </aside>
 
                 {/* Admin Core Content Area */}
-                <main className="flex-grow p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto max-h-[calc(100vh-4rem)]">
+                <main className={`flex-grow p-4 sm:p-6 md:p-8 ${
+                  adminTab === 'chat' 
+                    ? 'overflow-hidden flex flex-col md:h-[calc(100vh-4rem)] h-[calc(100vh-7.5rem)] max-h-[calc(100vh-4rem)]' 
+                    : 'overflow-y-auto max-h-[calc(100vh-4rem)] space-y-6'
+                }`}>
                   
                   {/* TAB 1: OVERVIEW DASHBOARD */}
                   {adminTab === 'dashboard' && (
@@ -3191,13 +3195,13 @@ export default function App() {
 
                   {/* TAB 3: SUPPORT LIVE CHAT INBOX */}
                   {adminTab === 'chat' && (
-                    <div id="admin-tab-chat" className="space-y-6 flex-grow flex flex-col h-[calc(100vh-10rem)]">
+                    <div id="admin-tab-chat" className="space-y-4 flex-grow flex flex-col h-full min-h-0">
                       <div>
                         <h2 className="text-2xl font-black">Support live Inbox</h2>
                         <p className="text-xs text-slate-400">Reply and resolve client inquiries in real-time.</p>
                       </div>
 
-                      <div className="flex-grow grid md:grid-cols-12 gap-6 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden min-h-[400px]">
+                      <div className="flex-grow grid md:grid-cols-12 gap-6 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden min-h-0 h-full">
                         
                         {/* Session list (3 md:col) */}
                         <div className={`md:col-span-4 border-r border-slate-800 flex flex-col ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
@@ -3234,11 +3238,11 @@ export default function App() {
                         </div>
 
                         {/* Dialogue pane (8 md:col) */}
-                        <div className={`md:col-span-8 flex flex-col justify-between h-full min-h-[350px] ${!selectedChat ? 'hidden md:flex' : 'flex'}`}>
+                        <div className={`md:col-span-8 flex flex-col justify-between h-full min-h-0 ${!selectedChat ? 'hidden md:flex' : 'flex'}`}>
                           {selectedChat ? (
                             <>
                               {/* Header */}
-                              <div className="p-4 bg-slate-900/40 border-b border-slate-800 flex items-center justify-between text-xs">
+                              <div className="p-4 bg-slate-900/40 border-b border-slate-800 flex items-center justify-between text-xs sticky top-0 z-40">
                                 <div className="flex items-center space-x-2">
                                   <button 
                                     onClick={() => setSelectedChat(null)}
@@ -3260,7 +3264,7 @@ export default function App() {
                               </div>
 
                               {/* Message threads */}
-                              <div className="flex-grow overflow-y-auto p-4 space-y-4 max-h-[350px]">
+                              <div className="flex-grow overflow-y-auto p-4 space-y-4 min-h-0">
                                 {selectedChat.messages?.map((msg: any) => {
                                   const isAgent = msg.senderType === 'agent';
                                   return (
