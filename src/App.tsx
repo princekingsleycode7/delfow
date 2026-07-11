@@ -499,11 +499,11 @@ export default function App() {
   // Scroll chat boxes to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages, chatOpen]);
+  }, [chatMessages?.length, chatOpen]);
 
   useEffect(() => {
     adminChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [selectedChat?.messages]);
+  }, [selectedChat?.id, selectedChat?.messages?.length]);
 
   // Fetch functions
   const checkFirstAdminSetup = async () => {
@@ -3521,63 +3521,65 @@ export default function App() {
       </main>
 
       {/* ----------------- FOOTER ----------------- */}
-      <footer id="footer-delflow" className="bg-slate-950 text-slate-400 text-xs py-12 border-t border-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-12 gap-8 items-start">
-          
-          <div className="md:col-span-4 space-y-4">
-            <DelflowLogo className="w-8 h-8 text-orange-500" />
-            <p className="leading-relaxed">
-              Delflow is a leading integrated logistics provider, streamlining global shipping, warehouse storage, and intercontinental supply chain management with total transparency.
-            </p>
+      {currentView !== 'admin' && (
+        <footer id="footer-delflow" className="bg-slate-950 text-slate-400 text-xs py-12 border-t border-slate-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-12 gap-8 items-start">
+            
+            <div className="md:col-span-4 space-y-4">
+              <DelflowLogo className="w-8 h-8 text-orange-500" />
+              <p className="leading-relaxed">
+                Delflow is a leading integrated logistics provider, streamlining global shipping, warehouse storage, and intercontinental supply chain management with total transparency.
+              </p>
+            </div>
+
+            <div className="md:col-span-3 space-y-3">
+              <h4 className="font-bold text-slate-200">Our Services</h4>
+              <ul className="space-y-1.5">
+                <li><button onClick={() => { setSelectedServiceDetail('road'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Road Transport</button></li>
+                <li><button onClick={() => { setSelectedServiceDetail('ocean'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Ocean Freight</button></li>
+                <li><button onClick={() => { setSelectedServiceDetail('train'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Train Freight</button></li>
+                <li><button onClick={() => { setSelectedServiceDetail('air'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Air Freight</button></li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-3 space-y-3">
+              <h4 className="font-bold text-slate-200">Quick Links</h4>
+              <ul className="space-y-1.5">
+                <li><button onClick={() => setCurrentView('home')} className="hover:text-white transition-colors">Home Landing</button></li>
+                <li><button onClick={() => setCurrentView('about')} className="hover:text-white transition-colors">About Us</button></li>
+                <li><button onClick={() => setCurrentView('blog')} className="hover:text-white transition-colors">Insights Blog</button></li>
+                <li><button onClick={() => setCurrentView('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
+                <li>
+                  <button 
+                    onClick={() => setCurrentView('admin')} 
+                    className="text-orange-400 hover:text-orange-300 font-semibold transition-colors">
+                    Staff Admin Access
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-2 space-y-3">
+              <h4 className="font-bold text-slate-200">Contact Us</h4>
+              <p className="leading-relaxed">
+                Corporate Office: <br/>
+                900 Wilshire Blvd, Los Angeles, CA<br/>
+                delflow_logistics@protonmail.com
+              </p>
+            </div>
+
           </div>
 
-          <div className="md:col-span-3 space-y-3">
-            <h4 className="font-bold text-slate-200">Our Services</h4>
-            <ul className="space-y-1.5">
-              <li><button onClick={() => { setSelectedServiceDetail('road'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Road Transport</button></li>
-              <li><button onClick={() => { setSelectedServiceDetail('ocean'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Ocean Freight</button></li>
-              <li><button onClick={() => { setSelectedServiceDetail('train'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Train Freight</button></li>
-              <li><button onClick={() => { setSelectedServiceDetail('air'); setCurrentView('service-detail'); }} className="hover:text-white transition-colors">Air Freight</button></li>
-            </ul>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-900 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500">
+            <p>© 2026 Delflow Shipping & Logistics. All Rights Reserved.</p>
+            <div className="flex space-x-4">
+              <span className="hover:text-slate-300 transition-colors">Privacy Policy</span>
+              <span>•</span>
+              <span className="hover:text-slate-300 transition-colors">Terms of Service</span>
+            </div>
           </div>
-
-          <div className="md:col-span-3 space-y-3">
-            <h4 className="font-bold text-slate-200">Quick Links</h4>
-            <ul className="space-y-1.5">
-              <li><button onClick={() => setCurrentView('home')} className="hover:text-white transition-colors">Home Landing</button></li>
-              <li><button onClick={() => setCurrentView('about')} className="hover:text-white transition-colors">About Us</button></li>
-              <li><button onClick={() => setCurrentView('blog')} className="hover:text-white transition-colors">Insights Blog</button></li>
-              <li><button onClick={() => setCurrentView('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
-              <li>
-                <button 
-                  onClick={() => setCurrentView('admin')} 
-                  className="text-orange-400 hover:text-orange-300 font-semibold transition-colors">
-                  Staff Admin Access
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <div className="md:col-span-2 space-y-3">
-            <h4 className="font-bold text-slate-200">Contact Us</h4>
-            <p className="leading-relaxed">
-              Corporate Office: <br/>
-              900 Wilshire Blvd, Los Angeles, CA<br/>
-              delflow_logistics@protonmail.com
-            </p>
-          </div>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-900 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500">
-          <p>© 2026 Delflow Shipping & Logistics. All Rights Reserved.</p>
-          <div className="flex space-x-4">
-            <span className="hover:text-slate-300 transition-colors">Privacy Policy</span>
-            <span>•</span>
-            <span className="hover:text-slate-300 transition-colors">Terms of Service</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
 
       {/* ----------------- WHATSAPP FLOATING BUTTON ----------------- */}
