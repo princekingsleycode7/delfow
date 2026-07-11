@@ -74,8 +74,7 @@ interface DatabaseSchema {
   messages: Message[];
 }
 
-// In-memory sessions store
-const sessions: Record<string, string> = {}; // token -> userId
+// Removed in-memory sessions store to use Firestore instead
 
 // Helper to clean environment variables (removes quotes and leading/trailing whitespace)
 const cleanEnvVar = (val: string | undefined): string | undefined => {
@@ -279,6 +278,38 @@ class DB {
     const dbInstance = getDBInstance();
     await setDoc(doc(dbInstance, 'messages', message.id), message);
   }
+
+  // --- Auth Sessions Operations ---
+  public async getAuthSessionUserId(token: string): Promise<string | null> {
+    const dbInstance = getDBInstance();
+    const docSnap = await getDoc(doc(dbInstance, 'auth_sessions', token));
+    if (docSnap.exists()) {
+      return docSnap.data().userId as string;
+    }
+    return null;
+  }
+
+  public async saveAuthSession(token: string, userId: string): Promise<void> {
+    const dbInstance = getDBInstance();
+    await setDoc(doc(dbInstance, 'auth_sessions', token), { userId, createdAt: new Date().toISOString() });
+  }
+
+  public async deleteAuthSession(token: string): Promise<void> {
+    const dbInstance = getDBInstance();
+    await deleteDoc(doc(dbInstance, 'auth_sessions', token));
+  }
+
+  public async deleteUserAuthSessions(userId: string): Promise<void> {
+    const dbInstance = getDBInstance();
+    const snap = await getDocs(collection(dbInstance, 'auth_sessions'));
+    const deletePromises: Promise<void>[] = [];
+    snap.forEach(docSnap => {
+      if (docSnap.data().userId === userId) {
+        deletePromises.push(deleteDoc(doc(dbInstance, 'auth_sessions', docSnap.id)));
+      }
+    });
+    await Promise.all(deletePromises);
+  }
 }
 
 const db = new DB();
@@ -303,22 +334,27 @@ app.use(express.json());
 
 // --- Auth Middleware ---
 const authenticate = async (req: any, res: any, next: any) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Unauthorized: Missing token' });
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized: Missing token' });
+      }
+      const token = authHeader.split('Bearer ')[1];
+      const userId = await db.getAuthSessionUserId(token);
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+      }
+      const users = await db.getUsers();
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized: User not found' });
+      }
+      req.user = user;
+      next();
+    } catch (error) {
+      console.error('Authentication Error:', error);
+      return res.status(500).json({ error: 'Internal Server Error during authentication' });
     }
-    const token = authHeader.split('Bearer ')[1];
-    const userId = sessions[token];
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-    }
-    const users = await db.getUsers();
-    const user = users.find(u => u.id === userId);
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized: User not found' });
-    }
-    req.user = user;
-    next();
   };
 
   const requireRole = (roles: string[]) => {
@@ -371,7 +407,7 @@ const authenticate = async (req: any, res: any, next: any) => {
     await db.saveUser(newUser);
 
     const token = crypto.randomBytes(32).toString('hex');
-    sessions[token] = newUser.id;
+    await db.saveAuthSession(token, newUser.id);
 
     res.status(201).json({
       token,
@@ -400,7 +436,7 @@ const authenticate = async (req: any, res: any, next: any) => {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    sessions[token] = user.id;
+    await db.saveAuthSession(token, user.id);
 
     res.json({
       token,
@@ -424,13 +460,18 @@ const authenticate = async (req: any, res: any, next: any) => {
     });
   });
 
-  app.post('/api/auth/logout', authenticate, (req: any, res: any) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
-      delete sessions[token];
+  app.post('/api/auth/logout', authenticate, async (req: any, res: any) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split('Bearer ')[1];
+        await db.deleteAuthSession(token);
+      }
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Logout error:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-    res.json({ success: true });
   });
 
   // Users Management (Super Admin only)
@@ -519,11 +560,7 @@ const authenticate = async (req: any, res: any, next: any) => {
     await db.deleteUser(id);
 
     // Revoke any active sessions of the deleted user
-    for (const token of Object.keys(sessions)) {
-      if (sessions[token] === id) {
-        delete sessions[token];
-      }
-    }
+    await db.deleteUserAuthSessions(id);
 
     res.json({ success: true, message: `Access for user ${userToDelete.email} has been successfully revoked.` });
   });
